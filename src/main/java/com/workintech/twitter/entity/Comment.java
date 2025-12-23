@@ -37,6 +37,8 @@ private LocalDateTime createdDate;
 @JoinColumn(name="user_id")
 private User user;
 
+@JoinColumn(name="comment_text")
+private String commentText;
 
 @ToString.Exclude
 @ManyToOne

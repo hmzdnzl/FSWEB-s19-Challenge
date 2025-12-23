@@ -50,7 +50,7 @@ private List <Like> likes = new ArrayList<>();
 private User user;
 
 @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
-private List<Reteweet> reteweets = new ArrayList<>();
+private List<Retweet> reteweets = new ArrayList<>();
 
 
 @ToString.Exclude
@@ -83,14 +83,14 @@ public void removeLike(Like like) {
     }
 }
 
-public void addReteweet(Reteweet reteweet) {
+public void addReteweet(Retweet reteweet) {
     if(reteweet != null && !reteweets.contains(reteweet)) {
         reteweet.setTweet(this);
         reteweets.add(reteweet);
     }
 }
 
-public void removeReteweet(Reteweet reteweet) {
+public void removeReteweet(Retweet reteweet) {
     if(reteweet != null && reteweets.remove(reteweet)) {
         reteweet.setTweet(null);       
     }

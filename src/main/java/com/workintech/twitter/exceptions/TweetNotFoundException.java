@@ -1,8 +1,10 @@
 package com.workintech.twitter.exceptions;
 
-public class TweetNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-    public TweetNotFoundException (String string) {
-      
+public class TweetNotFoundException extends TwitterException {
+
+    public TweetNotFoundException (String message) {
+      super(message, HttpStatus.NOT_FOUND);
     }
 }

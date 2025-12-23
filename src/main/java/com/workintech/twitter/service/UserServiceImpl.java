@@ -82,4 +82,13 @@ private final UserMapper userMapper;
       userRepository.deleteById(id);
     }
 
+    @Override
+    public List<UserResponseDto> searchByNickName(String nickName) {
+    return userRepository
+    .searchByNickName(nickName)
+    .stream()
+    .map(userMapper::toUserResponseDto)
+    .toList();
+    }
+
 }

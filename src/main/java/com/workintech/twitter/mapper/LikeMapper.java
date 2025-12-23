@@ -1,10 +1,12 @@
 package com.workintech.twitter.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.workintech.twitter.dto.request.LikeRequestDto;
 import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.entity.Like;
 
-
+@Component
 public class LikeMapper {
     public Like toEntity(LikeRequestDto likeRequestDto) {
     Like like = new Like();

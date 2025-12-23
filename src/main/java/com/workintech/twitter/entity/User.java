@@ -68,7 +68,7 @@ private List<Tweet> tweets = new ArrayList<>();
 
 @ToString.Exclude
 @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-private List<Reteweet> reteweets = new ArrayList<>();
+private List<Retweet> reteweets = new ArrayList<>();
 
 
 @ToString.Exclude
@@ -121,14 +121,14 @@ public void removeLike(Like like) {
     }
 }
 
-public void addReteweet(Reteweet reteweet) {
+public void addReteweet(Retweet reteweet) {
     if(reteweet != null && !reteweets.contains(reteweet)) {
         reteweet.setUser(this);
         reteweets.add(reteweet);
     }
 }
 
-public void removeReteweet(Reteweet reteweet) {
+public void removeReteweet(Retweet reteweet) {
     if(reteweet != null && reteweets.remove(reteweet)) {
         reteweet.setUser(null);       
     }

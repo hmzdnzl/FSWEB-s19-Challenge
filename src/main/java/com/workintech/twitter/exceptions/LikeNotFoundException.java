@@ -1,7 +1,9 @@
 package com.workintech.twitter.exceptions;
 
-public class LikeNotFoundException extends RuntimeException {
-public LikeNotFoundException (String string) {
-      
+import org.springframework.http.HttpStatus;
+
+public class LikeNotFoundException extends TwitterException {
+public LikeNotFoundException (String message) {
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

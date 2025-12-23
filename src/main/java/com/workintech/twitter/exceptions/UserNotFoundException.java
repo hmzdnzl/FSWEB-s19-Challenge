@@ -1,9 +1,11 @@
 package com.workintech.twitter.exceptions;
 
-public class UserNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-    public UserNotFoundException(String string) {
-      
+public class UserNotFoundException extends TwitterException {
+
+    public UserNotFoundException(String message) {
+        super(message, HttpStatus.NOT_FOUND);
     }
 
 }

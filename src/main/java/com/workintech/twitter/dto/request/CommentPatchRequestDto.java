@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record CommentPatchRequestDto(
       @JsonProperty("comment_text")
-    String CommentText
+    String commentText
 ) {
 
 }

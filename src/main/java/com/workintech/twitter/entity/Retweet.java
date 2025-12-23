@@ -1,5 +1,7 @@
 package com.workintech.twitter.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +22,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="reteweet", schema = "twitter")
-public class Reteweet {
+public class Retweet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -32,6 +34,9 @@ private Tweet tweet;
 
 @Column(name = "tweet_text")
 private String tweetText;
+
+@Column(name = "created_date")
+private LocalDateTime createdDate;
 
 @ToString.Exclude
 @ManyToOne

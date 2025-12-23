@@ -2,17 +2,15 @@ package com.workintech.twitter.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.UserNotFoundException;
+import com.workintech.twitter.mapper.UserMapper;
 import com.workintech.twitter.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,13 +20,16 @@ public class UserServiceImpl implements UserService{
 @Autowired
 private final UserRepository userRepository;
 
+@Autowired
+private final UserMapper userMapper;
+
 
     @Override
     public List<UserResponseDto> getAll() {
      return userRepository
      .findAll()
      .stream()
-     .map(user -> new UserResponseDto(user.getEmail(), user.getNickName()))
+     .map(userMapper::toUserResponseDto)
      .toList();
     }
 
@@ -37,31 +38,27 @@ private final UserRepository userRepository;
       Optional<User> optUser = userRepository.findById(id);
       if(optUser.isPresent()) {
         User user = optUser.get();
-        return new UserResponseDto(user.getEmail(),user.getNickName() );
+        return userMapper.toUserResponseDto(user);
       }
       throw new UserNotFoundException(id + " id'li kullanıcı bulunamadı.");
     }
 
     @Override
     public UserResponseDto create(UserRequestDto userRequestDto) {
-   User user = new User();
-   user.setEmail(userRequestDto.email());
-   user.setNickName(userRequestDto.nickName());
+  User user = userMapper.toEntity(userRequestDto);
    user = userRepository.save(user);
-   return new UserResponseDto(user.getEmail(),user.getNickName());
+   return userMapper.toUserResponseDto(user);
 
     }
 
     @Override
     public UserResponseDto replaceOrCreate(Long id, UserRequestDto userRequestDto) {
-     User user = new User();
-     user.setEmail(userRequestDto.email());
-     user.setNickName(userRequestDto.nickName());
+    User user = userMapper.toEntity(userRequestDto);
      Optional<User> optUser = userRepository.findById(id);
      if(optUser.isPresent()) {
         user.setId(id);
         userRepository.save(user);
-        return new UserResponseDto(user.getEmail(),user.getNickName());
+        return userMapper.toUserResponseDto(user);
      }
       userRepository.save(user);
  return new UserResponseDto(user.getEmail(),user.getNickName());
@@ -69,21 +66,15 @@ private final UserRepository userRepository;
 
     @Override
     public UserResponseDto update(Long id, UserPatchRequestDto userPatchRequestDto) {
-     User userUpdated = userRepository
+     User userToUpdate = userRepository
      .findById(id)
      .orElseThrow(()-> new UserNotFoundException(id + " id'li kullanıcı bulunamadı."));
 
-        if(userPatchRequestDto.email() != null) {
-            userUpdated.setEmail(userPatchRequestDto.email());
-        }
+      userMapper.updateEntity(userToUpdate, userPatchRequestDto);
 
-        if(userPatchRequestDto.nickName() != null) { 
-            userUpdated.setNickName(userPatchRequestDto.nickName());
-        }
+        userRepository.save(userToUpdate);
 
-        userRepository.save(userUpdated);
-
-        return new UserResponseDto(userUpdated.getEmail(),userUpdated.getNickName());
+        return userMapper.toUserResponseDto(userToUpdate);
     }
 
     @Override

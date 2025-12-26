@@ -41,7 +41,7 @@ private LocalDateTime createdDate;
 @Column(name="tweet_text")
 private String tweetText;
 
-@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
+@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL, orphanRemoval = true)
 private List <Like> likes = new ArrayList<>();
 
 @ToString.Exclude
@@ -49,12 +49,12 @@ private List <Like> likes = new ArrayList<>();
 @JoinColumn(name="user_id")
 private User user;
 
-@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
-private List<Retweet> reteweets = new ArrayList<>();
+@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<Retweet> retweets = new ArrayList<>();
 
 
 @ToString.Exclude
-@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
+@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL, orphanRemoval = true)
 private List<Comment> comments = new ArrayList<>();
 
 public void addComment(Comment comment) {
@@ -84,19 +84,30 @@ public void removeLike(Like like) {
 }
 
 public void addReteweet(Retweet reteweet) {
-    if(reteweet != null && !reteweets.contains(reteweet)) {
+    if(reteweet != null && !retweets.contains(reteweet)) {
         reteweet.setTweet(this);
-        reteweets.add(reteweet);
+        retweets.add(reteweet);
     }
 }
 
 public void removeReteweet(Retweet reteweet) {
-    if(reteweet != null && reteweets.remove(reteweet)) {
+    if(reteweet != null && retweets.remove(reteweet)) {
         reteweet.setTweet(null);       
     }
 }
 
+public void addUser(User user) {
+    if(user != null) {
+        setUser(user);
+    }
+}
 
+public void removeUser(User user) {
+    if (user != null && this.user == user) {
+        setUser(null);
+        user.getTweets().remove(this);
+    }
+}
 
 }
 

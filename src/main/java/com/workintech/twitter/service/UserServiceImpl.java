@@ -6,10 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
+import com.workintech.twitter.dto.response.TweetResponseDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
+import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
+import com.workintech.twitter.exceptions.TweetNotFoundException;
 import com.workintech.twitter.exceptions.UserNotFoundException;
+import com.workintech.twitter.mapper.TweetMapper;
 import com.workintech.twitter.mapper.UserMapper;
+import com.workintech.twitter.repository.TweetRepository;
 import com.workintech.twitter.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -20,8 +25,13 @@ public class UserServiceImpl implements UserService{
 @Autowired
 private final UserRepository userRepository;
 
+@Autowired TweetRepository tweetRepository;
+
 @Autowired
 private final UserMapper userMapper;
+
+@Autowired 
+private final TweetMapper tweetMapper;
 
 
     @Override
@@ -90,5 +100,35 @@ private final UserMapper userMapper;
     .map(userMapper::toUserResponseDto)
     .toList();
     }
+
+    @Override
+    public void removeTweet(Long userId, Long tweetId) {
+     User user = userRepository
+     .findById(userId)
+     .orElseThrow(()-> new UserNotFoundException(userId + " id'li kullanıcı bulunamadı"));
+
+     Tweet tweet = tweetRepository.findById(tweetId)
+     .orElseThrow(()-> new TweetNotFoundException(tweetId + " id'li tweet bulunamadı"));
+
+     user.removeTweet(tweet);
+     tweet.removeUser(user);
+
+     userRepository.save(user);
+     
+    }
+
+    @Override
+    public List<TweetResponseDto> getAllTweets(Long userId) {
+         User user = userRepository
+     .findById(userId)
+     .orElseThrow(()-> new UserNotFoundException(userId + " id'li kullanıcı bulunamadı"));
+
+         return user.getTweets()
+        .stream()
+        .map(tweetMapper::toTweetResponseDto)
+        .toList();
+}
+
+    
 
 }

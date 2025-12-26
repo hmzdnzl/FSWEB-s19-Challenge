@@ -1,7 +1,6 @@
 package com.workintech.twitter.mapper;
 
 import org.springframework.stereotype.Component;
-
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
@@ -30,5 +29,6 @@ public class UserMapper {
         if(userPatchRequestDto.nickName() != null) { 
             userToUpdate.setNickName(userPatchRequestDto.nickName());
         }
+        
     }
 }

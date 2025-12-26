@@ -8,12 +8,12 @@ public record TweetResponseDto(
     @JsonProperty("tweet_text") 
     String tweetText,
 
+    @JsonProperty("tweet_owner")
+    String tweetOwner,
+
     @JsonProperty("created_time") 
     LocalDateTime createdDate,
-
-    @JsonProperty("user_id") 
-    Long userId,
-
+ 
     @JsonProperty("like_count") 
     int likeCount,
 

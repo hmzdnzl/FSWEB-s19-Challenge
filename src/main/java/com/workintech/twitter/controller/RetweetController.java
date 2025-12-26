@@ -3,6 +3,7 @@ package com.workintech.twitter.controller;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.workintech.twitter.dto.request.RetweetRequestDto;
 import com.workintech.twitter.dto.response.RetweetResponseDto;
 import com.workintech.twitter.service.RetweetService;
+
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -30,19 +33,19 @@ public class RetweetController {
     }
 
     @GetMapping("/{id}")
-    public RetweetResponseDto findById(@PathVariable("id") Long id) {
+    public RetweetResponseDto findById(@Positive @PathVariable("id") Long id) {
         return retweetService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RetweetResponseDto create(@RequestBody RetweetRequestDto retweetRequestDto) {
+    public RetweetResponseDto create(@Validated @RequestBody RetweetRequestDto retweetRequestDto) {
         return retweetService.create(retweetRequestDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT  )
-    public void deleteById(@PathVariable("id") Long id) {
+    public void deleteById(@Positive @PathVariable("id") Long id) {
         retweetService.deleteById(id);
     }
 }

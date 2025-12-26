@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.workintech.twitter.dto.request.LikeRequestDto;
 import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.service.LikeService;
+
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -30,19 +32,19 @@ public class LikeController {
     }
 
     @GetMapping("/{id}")
-    public LikeResponseDto findById(@PathVariable("id") Long id) {
+    public LikeResponseDto findById(@Positive @PathVariable("id") Long id) {
         return likeService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LikeResponseDto create(@RequestBody LikeRequestDto likeRequestDto) {
+       public LikeResponseDto create(@RequestBody LikeRequestDto likeRequestDto) {
         return likeService.create(likeRequestDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT  )
-    public void deleteById(@PathVariable("id") Long id) {
+    public void deleteById(@Positive @PathVariable("id") Long id) {
         likeService.deleteById(id);
     }
 }

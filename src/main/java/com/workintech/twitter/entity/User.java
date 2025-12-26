@@ -2,19 +2,31 @@ package com.workintech.twitter.entity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -32,7 +44,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of="id")
 @Entity
 @Table(name="user", schema = "twitter")
-public class User {
+public class User implements UserDetails {
     @Id
     @NotNull
     @NotNull
@@ -46,17 +58,30 @@ public class User {
 @Column(name="nick_name")
 private String nickName;
 
+@NotEmpty
 @NotBlank
 @NotNull
 @Email
+@Size(max = 50)
 @Column(name = "email")
 private String email;
 
+@NotNull
+@NotEmpty
 @NotBlank
-@Size(min = 8, max = 20)
-@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])((?=.*[0-9]).{8,20}$)", message = "Şifre en az 8 en fazla 20 karakter, bir büyük harf, bir küçük harf ve bir rakam içermelidir." )
+//@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,20}$", message = "Şifre en az 8 en fazla 20 karakter, bir büyük harf, bir küçük harf ve bir rakam içermelidir.")
 @Column(name = "password")
 private String password;
+
+@ManyToMany(fetch = FetchType.EAGER)
+@JoinTable(
+    name="user_role",
+    schema = "twitter",
+    joinColumns = @JoinColumn(name="user_id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id")
+)
+private Set<Role> roles = new HashSet<>();
+
 
 @Column(name="signup_date")
 private LocalDate signUpDate;
@@ -134,6 +159,19 @@ public void removeReteweet(Retweet reteweet) {
     }
 }
 
+@Override
+public Collection<? extends GrantedAuthority> getAuthorities() {
+    return this.roles;
+}
 
+@Override
+public String getUsername() {
+return email;
+}
+
+@Override
+public @Nullable String getPassword() {
+    return this.password;
+}
 
 }

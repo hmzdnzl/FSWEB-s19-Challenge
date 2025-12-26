@@ -8,8 +8,8 @@ public record CommentResponseDto(
        @JsonProperty("comment_text")
     String commentText,
 
-    @JsonProperty("user_id")
-    long userId,
+    @JsonProperty("comment_owner")
+    String commentOwnew,
 
     @JsonProperty("tweet_id")
     long tweetId,

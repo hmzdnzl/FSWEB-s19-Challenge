@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record CommentRequestDto(
     @JsonProperty("comment_text")
-    String commentText,
-
-    @JsonProperty("user_id")
-    long userId,
+    String commentText, 
 
     @JsonProperty("tweet_id")
     long tweetId

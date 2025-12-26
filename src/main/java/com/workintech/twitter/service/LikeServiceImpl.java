@@ -3,13 +3,22 @@ package com.workintech.twitter.service;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.workintech.twitter.dto.request.LikeRequestDto;
 import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.entity.Like;
+import com.workintech.twitter.entity.Tweet;
+import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.LikeNotFoundException;
+import com.workintech.twitter.exceptions.TweetNotFoundException;
+import com.workintech.twitter.exceptions.UserNotFoundException;
 import com.workintech.twitter.mapper.LikeMapper;
 import com.workintech.twitter.repository.LikeRepository;
+import com.workintech.twitter.repository.TweetRepository;
+import com.workintech.twitter.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,6 +27,12 @@ public class LikeServiceImpl implements LikeService {
 
     @Autowired
     private final LikeRepository likeRepository;
+
+    @Autowired
+    private final TweetRepository tweetRepository;
+
+    @Autowired
+    private final UserRepository userRepository;
     
     @Autowired
     private final LikeMapper likeMapper;
@@ -43,8 +58,20 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public LikeResponseDto create(LikeRequestDto likeRequestDto) {
            Like like = likeMapper.toEntity(likeRequestDto);
-       like = likeRepository.save(like);
-       return likeMapper.toLikeResponseDto(like); 
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+    Tweet tweet = tweetRepository.findById(likeRequestDto.tweetId())
+        .orElseThrow(() -> new TweetNotFoundException("Tweet bulunamadı"));
+
+    like.setUser(user);
+    like.setTweet(tweet);
+
+    like = likeRepository.save(like);
+    return likeMapper.toLikeResponseDto(like);
     }
     
 

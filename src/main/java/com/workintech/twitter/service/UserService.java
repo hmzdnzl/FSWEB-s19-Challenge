@@ -2,8 +2,11 @@ package com.workintech.twitter.service;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
+import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.dto.response.TweetResponseDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
 
@@ -31,6 +34,10 @@ List<UserResponseDto> searchByNickName(String nickName);
 
 void removeTweet(Long userId, Long tweetId);
 
-List<TweetResponseDto> getAllTweets(Long userId);
+List<TweetResponseDto> getAllTweets(Authentication authentication);
+
+UserResponseDto getCurrentUser(Authentication authentication);
+
+List<LikeResponseDto> getAllLikes(Authentication authentication);
 
 }

@@ -18,7 +18,7 @@ public class UserMapper {
     }
 
     public UserResponseDto toUserResponseDto(User user) {
-        return new UserResponseDto(user.getEmail(),user.getNickName());
+        return new UserResponseDto(user.getEmail(),user.getNickName(), user.getSignUpDate());
     }
 
     public void updateEntity(User userToUpdate, UserPatchRequestDto userPatchRequestDto ) {

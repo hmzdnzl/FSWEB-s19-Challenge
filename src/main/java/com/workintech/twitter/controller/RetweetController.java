@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reteweet")
+@RequestMapping("/retweet")
 public class RetweetController {
 
     @Autowired

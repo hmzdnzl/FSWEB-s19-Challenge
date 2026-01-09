@@ -3,15 +3,18 @@ package com.workintech.twitter.service;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
+import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.dto.response.TweetResponseDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
 import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.TweetNotFoundException;
 import com.workintech.twitter.exceptions.UserNotFoundException;
+import com.workintech.twitter.mapper.LikeMapper;
 import com.workintech.twitter.mapper.TweetMapper;
 import com.workintech.twitter.mapper.UserMapper;
 import com.workintech.twitter.repository.TweetRepository;
@@ -32,6 +35,9 @@ private final UserMapper userMapper;
 
 @Autowired 
 private final TweetMapper tweetMapper;
+
+@Autowired
+private final LikeMapper likeMapper;
 
 
     @Override
@@ -71,7 +77,7 @@ private final TweetMapper tweetMapper;
         return userMapper.toUserResponseDto(user);
      }
       userRepository.save(user);
- return new UserResponseDto(user.getEmail(),user.getNickName());
+ return new UserResponseDto(user.getEmail(),user.getNickName(), user.getSignUpDate());
     }
 
     @Override
@@ -118,17 +124,34 @@ private final TweetMapper tweetMapper;
     }
 
     @Override
-    public List<TweetResponseDto> getAllTweets(Long userId) {
+    public List<TweetResponseDto> getAllTweets(Authentication authentication) {
          User user = userRepository
-     .findById(userId)
-     .orElseThrow(()-> new UserNotFoundException(userId + " id'li kullanıcı bulunamadı"));
-
+     .findByEmail(authentication.getName())
+     .orElseThrow(()-> new UserNotFoundException(authentication.getName() + "mail adresine sahip kullanıcı bulunamadı"));
          return user.getTweets()
         .stream()
         .map(tweetMapper::toTweetResponseDto)
         .toList();
 }
 
-    
+    @Override
+    public UserResponseDto getCurrentUser(Authentication authentication) {
+    String username = authentication.getName();
+    User user = userRepository.findByEmail(username)
+    .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+    UserResponseDto userdto = userMapper.toUserResponseDto(user);
+    return userdto; 
+}
+
+    @Override
+    public List<LikeResponseDto> getAllLikes(Authentication authentication) {
+         User user = userRepository
+     .findByEmail(authentication.getName())
+     .orElseThrow(()-> new UserNotFoundException(authentication.getName() + "mail adresine sahip kullanıcı bulunamadı"));
+         return user.getLikes()
+        .stream()
+        .map(likeMapper::toLikeResponseDto)
+        .toList();        
+}
 
 }

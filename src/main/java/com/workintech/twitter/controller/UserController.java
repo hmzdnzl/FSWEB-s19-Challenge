@@ -1,9 +1,9 @@
 package com.workintech.twitter.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.workintech.twitter.dto.request.UserPatchRequestDto;
 import com.workintech.twitter.dto.request.UserRequestDto;
+import com.workintech.twitter.dto.response.LikeResponseDto;
 import com.workintech.twitter.dto.response.TweetResponseDto;
 import com.workintech.twitter.dto.response.UserResponseDto;
 import com.workintech.twitter.service.UserService;
-
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -40,14 +39,24 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/me")
+    public UserResponseDto getCurrentUser(Authentication authentication) {
+        return userService.getCurrentUser(authentication);
+    }  
+    
     @GetMapping("/{id}")
     public UserResponseDto findById(@Positive @PathVariable("id") Long id) {
         return userService.findById(id);
+    }   
+
+    @GetMapping("/alltweets")
+    public List<TweetResponseDto> getAllTweets(Authentication authentication) {
+        return userService.getAllTweets(authentication);
     }
 
-    @GetMapping("/alltweets/{id}")
-    public List<TweetResponseDto> getAllTweets(@Positive @PathVariable("id") Long id) {
-        return userService.getAllTweets(id);
+    @GetMapping("/alllikes")
+    public List<LikeResponseDto> getAllLikes(Authentication authentication) {
+        return userService.getAllLikes(authentication);
     }
 
     @PostMapping

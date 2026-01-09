@@ -3,6 +3,7 @@ package com.workintech.twitter.service;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.CommentNotFoundException;
 import com.workintech.twitter.exceptions.TweetNotFoundException;
+import com.workintech.twitter.exceptions.UnauthorizedUpdateException;
 import com.workintech.twitter.exceptions.UserNotFoundException;
 import com.workintech.twitter.mapper.CommentMapper;
 import com.workintech.twitter.repository.CommentRepository;
@@ -79,15 +81,25 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponseDto replaceOrCreate(Long id, CommentRequestDto commentRequestDto) {
-          Comment comment = commentMapper.toEntity(commentRequestDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+        Comment comment = commentMapper.toEntity(commentRequestDto);
         Optional<Comment> optComment = commentRepository.findById(id);
-        if(optComment.isPresent()) {
+        if (optComment.isPresent()) {
+            Comment existingComment = optComment.get();
+            if (existingComment.getUser() == null || !java.util.Objects.equals(user.getId(), existingComment.getUser().getId())) {
+                throw new UnauthorizedUpdateException("Bu yorumu düzenlemeye yetkiniz yok.",HttpStatus.FORBIDDEN);
+            }
             comment.setId(id);
-            comment.setUser(optComment.get().getUser());
-            comment.setTweet(optComment.get().getTweet());
+            comment.setUser(existingComment.getUser());
+            comment.setTweet(existingComment.getTweet());
             commentRepository.save(comment);
             return commentMapper.toCommentResponseDto(comment);
         }
+        comment.setUser(user);
         commentRepository.save(comment);
         return commentMapper.toCommentResponseDto(comment);
     }
@@ -95,9 +107,18 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDto update(Long id, CommentPatchRequestDto commentPatchRequestDto) {
     
-         Comment comentToUpdate = commentRepository
-        .findById(id)
-        .orElseThrow(()-> new CommentNotFoundException(id+" id'li comment bulunamadı."));      
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+        Comment comentToUpdate = commentRepository
+            .findById(id)
+            .orElseThrow(() -> new CommentNotFoundException(id + " id'li comment bulunamadı."));
+
+        if (comentToUpdate.getUser() == null || !java.util.Objects.equals(user.getId(), comentToUpdate.getUser().getId())) {
+            throw new RuntimeException("Bu yorumu düzenlemeye yetkiniz yok.");
+        }
 
         commentMapper.updateEntity(comentToUpdate, commentPatchRequestDto);
         commentRepository.save(comentToUpdate);

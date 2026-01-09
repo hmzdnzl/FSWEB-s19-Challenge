@@ -20,6 +20,7 @@ import com.workintech.twitter.exceptions.UserAlreadyRegisteredException;
 import com.workintech.twitter.exceptions.UserNotFoundException;
 import com.workintech.twitter.repository.RoleRepository;
 import com.workintech.twitter.repository.UserRepository;
+import com.workintech.twitter.security.JwtUtil;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -32,6 +33,9 @@ public class AuthServiceImpl implements AuthService{
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
 
@@ -66,13 +70,14 @@ public class AuthServiceImpl implements AuthService{
         if(!passwordEncoder.matches(loginRequestDto.password(), loggedUser.getPassword())) {
             throw new IncorrectPasswordException("Parola hatalı",HttpStatus.UNAUTHORIZED);
         }
-
   
+String token = jwtUtil.generateToken(loggedUser);
 
         return new LoginResponseDto(
             loggedUser.getEmail(),
             loggedUser.getNickName(),
-            "Oturum açıldı"      
+            "Oturum açıldı",
+            token      
         );
     }
 

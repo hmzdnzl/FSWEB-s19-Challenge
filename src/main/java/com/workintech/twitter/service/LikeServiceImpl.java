@@ -57,8 +57,6 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public LikeResponseDto create(LikeRequestDto likeRequestDto) {
-           Like like = likeMapper.toEntity(likeRequestDto);
-
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = authentication.getName();
     User user = userRepository.findByEmail(email)
@@ -67,12 +65,19 @@ public class LikeServiceImpl implements LikeService {
     Tweet tweet = tweetRepository.findById(likeRequestDto.tweetId())
         .orElseThrow(() -> new TweetNotFoundException("Tweet bulunamadı"));
 
-    like.setUser(user);
-    like.setTweet(tweet);
+    Optional<Like> existingLike = likeRepository.findByUserAndTweet(user, tweet);
 
-    like = likeRepository.save(like);
-    return likeMapper.toLikeResponseDto(like);
+    if (existingLike.isPresent()) {
+        likeRepository.delete(existingLike.get());  
+        return null; 
+    } else {
+        Like like = likeMapper.toEntity(likeRequestDto);
+        like.setUser(user);
+        like.setTweet(tweet);
+        like = likeRepository.save(like);
+        return likeMapper.toLikeResponseDto(like);
     }
+}
     
 
     @Override

@@ -17,6 +17,7 @@ import com.workintech.twitter.entity.Tweet;
 import com.workintech.twitter.entity.User;
 import com.workintech.twitter.exceptions.TweetNotFoundException;
 import com.workintech.twitter.exceptions.UnauthorizedDeleteException;
+import com.workintech.twitter.exceptions.UnauthorizedUpdateException;
 import com.workintech.twitter.exceptions.UserNotFoundException;
 import com.workintech.twitter.mapper.TweetMapper;
 import com.workintech.twitter.mapper.UserMapper;
@@ -77,23 +78,40 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public TweetResponseDto replaceOrCreate(Long id, TweetRequestDto tweetRequestDto) {
-          Tweet tweet = tweetMapper.toEntity(tweetRequestDto);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+    Tweet tweet = tweetMapper.toEntity(tweetRequestDto);
     Optional<Tweet> optTweet = tweetRepository.findById(id);
-    if(optTweet.isPresent()) {
+    if (optTweet.isPresent()) {
+        Tweet existingTweet = optTweet.get();
+        if (existingTweet.getUser() == null || !java.util.Objects.equals(user.getId(), existingTweet.getUser().getId())) {
+            throw new UnauthorizedUpdateException("Bu tweet'i düzenlemeye yetkiniz yok.", HttpStatus.FORBIDDEN);
+        }
         tweet.setId(id);
-        tweet.setUser(optTweet.get().getUser());
+        tweet.setUser(existingTweet.getUser());
         tweetRepository.save(tweet);
         return tweetMapper.toTweetResponseDto(tweet);
     }
+    tweet.setUser(user);
     tweetRepository.save(tweet);
     return tweetMapper.toTweetResponseDto(tweet);
     }
 
     @Override
     public TweetResponseDto update(Long id, TweetPatchRequestDto tweetPatchRequestDto) {
-        Tweet tweetToUpdate = tweetRepository
-        .findById(id)
-        .orElseThrow(()-> new TweetNotFoundException(id + " id'li kullanıcı bulunamadı."));
+          Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+
+User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+  Tweet tweetToUpdate = tweetRepository.findById(id)
+        .orElseThrow(() -> new TweetNotFoundException(id + " id'li tweet bulunamadı."));
+
+    if (tweetToUpdate.getUser() == null || !java.util.Objects.equals(user.getId(), tweetToUpdate.getUser().getId())) {
+        throw new UnauthorizedUpdateException("Bu tweet'i düzenlemeye yetkiniz yok.", HttpStatus.FORBIDDEN);
+    }
 
         tweetMapper.updateEntity(tweetToUpdate, tweetPatchRequestDto);
         tweetRepository.save(tweetToUpdate);

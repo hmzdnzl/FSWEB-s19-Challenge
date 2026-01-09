@@ -11,17 +11,17 @@ public class RetweetMapper {
 
         public Retweet toEntity(RetweetRequestDto retweetRequestDto) {
     Retweet reteweet = new Retweet();
-   reteweet.setTweetText(retweetRequestDto.tweetText());      
+     
         return reteweet;
     }
 
     public RetweetResponseDto toRetweetResponseDto(Retweet retweet) {        
     return new RetweetResponseDto(
-    retweet.getId(),
-    retweet.getTweetText(),
-    retweet.getUser() != null ? retweet.getUser().getNickName() : null,
-    retweet.getCreatedDate()
-);
+        retweet.getTweet() != null ? retweet.getTweet().getId() : 0L,
+        retweet.getTweet() != null ? retweet.getTweet().getTweetText() : null,
+        retweet.getUser() != null ? retweet.getUser().getNickName() : null,
+        retweet.getTweet() != null ? retweet.getTweet().getCreatedDate() : null
+    );
     }
     
 }

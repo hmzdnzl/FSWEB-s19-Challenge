@@ -41,6 +41,7 @@ public class LikeController {
        public LikeResponseDto create(@RequestBody LikeRequestDto likeRequestDto) {
         return likeService.create(likeRequestDto);
     }
+    
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT  )
